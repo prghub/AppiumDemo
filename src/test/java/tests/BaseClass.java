@@ -8,42 +8,49 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.openqa.selenium.WebElement;  // Import WebElement
 
+import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.MobileCapabilityType;
+
 import org.testng.Assert;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class BaseClass {
+	AppiumDriver<MobileElement> appiumDriver;
 
-    private AndroidDriver driver;
 
     @BeforeClass
     public void setUp() throws MalformedURLException {
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability("platformName", "device");
-        capabilities.setCapability("deviceName", "emulator-5554");  // Replace with your emulator/device name
-        capabilities.setCapability("app", "C:\\Users\\preethy.ramamoorthy\\source\\repos\\Appium\\adk\\samsungyoutube.apkm");  // App package
-        //capabilities.setCapability("APP_ACTIVITY", "com.samsung.android.youtube.activity.MainActivity");  // App activity
-        capabilities.setCapability("automationName", "UiAutomator2");
+	    
+		DesiredCapabilities capabilities = new DesiredCapabilities();
 
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
+        capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "uiautomator2");
+        capabilities.setCapability(MobileCapabilityType.UDID, "emulator-5554");  // App package
+        capabilities.setCapability("appPackage", "com.wdiodemoapp");  // App activity
+        capabilities.setCapability("appActivity", "com.wdiodemoapp.MainActivity");  // App activity
+        
         // Start the Appium driver and launch the app
-        driver = new AndroidDriver(new URL("http://127.0.0.1:4723/wd/hub"), capabilities);
+        URL appiumServer = new URL("http://localhost:4723/wd/hub");
+        appiumDriver = new AppiumDriver<>(appiumServer, capabilities);
     }
 
     @Test
     public void testAppLaunch() {
         // Example of interacting with the app
-        WebElement playButton = driver.findElement(By.id("com.samsung.android.youtube:id/play_button"));
-        playButton.click();
+        MobileElement loginLabel = appiumDriver.findElementByAccessibilityId("Login");
+        loginLabel.click();
 
         // Verify if video is playing or interaction succeeded
-        Assert.assertTrue(playButton.isDisplayed(), "Play button is not displayed");
+        Assert.assertTrue(loginLabel.isDisplayed(), "Play button is not displayed");
     }
 
     @AfterClass
     public void tearDown() {
-        if (driver != null) {
-            driver.quit();
+        if (appiumDriver != null) {
+        	appiumDriver.quit();
         }
     }
 }
